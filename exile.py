@@ -190,6 +190,8 @@ def resolve(paths):
     """
     for path in paths:
         for relative in filemap.paths(path):
+            if filemap.ignored(relative):
+                continue
             exile.log.message("resolving: " + relative)
             filehash = filemap.get(relative)
             comm.get(filehash, relative)
@@ -203,6 +205,9 @@ def add_file(path, removed=None):
     Args:
         path: the path to a file to add (must be a file)
     """
+    if filemap.ignored(path):
+        return
+    
     filehash = exile.hash(path)
 
     # if we just removed this file and its hash matches, we're just replacing the entry in the map
