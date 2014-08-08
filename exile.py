@@ -85,7 +85,7 @@ def init(type):
         template['type'] = type
 
     config = { "remote": template }
-    with open('exile.manifest', 'wb') as file:
+    with open('exile.manifest', 'w') as file:
         json.dump(config, file, indent=4, sort_keys=True)
 
     exile.log.message("Initialized manifest with remote type '%s'" % (args.type))
@@ -122,7 +122,7 @@ def cache(args, root):
 root_parser = argparse.ArgumentParser(description="Add and resolve files stored in an exile repository.",
                                      formatter_class=argparse.RawTextHelpFormatter)
 root_parser.add_argument("-v", "--verbosity", type=int, default=2,
-                        help="the amount of informational output to produce\n  0: only errors\n  1: + warnings\n  2: + normal output (default)\n  3: + informational notes")
+                        help="the amount of informational output to produce\n  0: only errors\n  1: + normal output\n  2: + warnings (default)\n  3: + informational notes")
 subparsers = root_parser.add_subparsers(dest='action')
 
 resolve_parser = subparsers.add_parser('resolve', help='copy paths from the repository')
@@ -149,6 +149,10 @@ cache_clean_parser.add_argument("-s", "--snapshot", action='store_true',
 cache_clean_parser.add_argument("-o", "--objects", action='store_true',
                                 help='clean all cached objects (possibly shared by other exile repositories)')
 cache_info_parser = cache_subparsers.add_parser('info', help='display information about the caches')
+
+status_parser = subparsers.add_parser('status', help='open the status UI (requires wxPython)')
+status_parser.add_argument("paths", nargs='*',
+                           help="the paths to which the action applies")
 
 args = root_parser.parse_args()
 
@@ -190,8 +194,6 @@ def resolve(paths):
     """
     for path in paths:
         for relative in filemap.paths(path):
-            if filemap.ignored(relative):
-                continue
             exile.log.message("resolving: " + relative)
             filehash = filemap.get(relative)
             comm.get(filehash, relative)
@@ -205,9 +207,6 @@ def add_file(path, removed=None):
     Args:
         path: the path to a file to add (must be a file)
     """
-    if filemap.ignored(path):
-        return
-    
     filehash = exile.hash(path)
 
     # if we just removed this file and its hash matches, we're just replacing the entry in the map
@@ -246,8 +245,12 @@ def add(paths):
     comm.join()
 
     # update the manifest file
-    with open(config_path, 'wb') as file:
+    with open(config_path, 'w') as file:
         json.dump(config, file, indent=4, sort_keys=True)
+
+def status(paths):
+    from ui import start_status_view
+    start_status_view(paths)
 
 try:
     # calls the local function with the same name as the action argument -- "add" calls add(paths)

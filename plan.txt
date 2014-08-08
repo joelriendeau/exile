@@ -1,0 +1,11 @@
+- Ignore support
+ -> Let's us mark certain files as ignored, which allows 'add all new' or 'show all new'
+- Visual Add
+ -> Add shows you all files that are not described by the manifest.
+ -> Each dir/file has 'Add', 'Ignore Local', 'Ignore Global', 'Delete'
+ -> Defaults to 'Ignore Local', which goes to exile.ignorelocal
+- Visual Restore
+ -> Restore shows you all files that will be deleted
+ -> Each file has 'Add', 'Ignore Local, 'Ignore Global', 'Delete'
+- Visual Clean
+ -> Show all files, with above options

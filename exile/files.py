@@ -51,7 +51,7 @@ class FileMapping:
         """
         Get the value from the file configuration for a path. If the path represents a directory,
         the return value with be a dict. If it is a file, the result will be a string (the configured
-        hash for that path). If it is an ignored file, it will return ["ignore"].
+        hash for that path).
 
         Args:
             parts: a list of componenets of the path (probably from __path_components)
@@ -67,23 +67,13 @@ class FileMapping:
     def get(self, path):
         """
         Gets the configured object for a given path. If the path is not a file
-        or is not tracked, returns None. If it is an ignored file, returns ["ignore"].
+        or is not tracked, returns None.
         """
 
         value = self.__get(self.__path_components(path))
         if type(value) is dict:
             return None
         return value
-
-    def ignored(self, path):
-        """
-        Return True if the given path is ignored. False otherwise.
-        """
-
-        value = self.__get(self.__path_components(path))
-        if type(value) is list:
-            return True
-        return False
 
     def __paths(self, parent, value):
         """
