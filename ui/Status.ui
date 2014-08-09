@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1061</width>
-    <height>796</height>
+    <width>1092</width>
+    <height>806</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -33,7 +33,7 @@
        </sizepolicy>
       </property>
       <property name="columnCount">
-       <number>6</number>
+       <number>7</number>
       </property>
       <attribute name="headerCascadingSectionResizes">
        <bool>true</bool>
@@ -44,6 +44,11 @@
       <column>
        <property name="text">
         <string>Path</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Status</string>
        </property>
       </column>
       <column>
@@ -101,7 +106,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="applyButton">
         <property name="minimumSize">
          <size>
           <width>100</width>
@@ -114,7 +119,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_2">
+       <widget class="QPushButton" name="cancelButton">
         <property name="minimumSize">
          <size>
           <width>100</width>

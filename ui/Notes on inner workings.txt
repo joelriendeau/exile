@@ -2,8 +2,20 @@ All the states an entry can be in:
 
 # exile ui
 - File found on disk in base paths, not ignored, not tracked in manifest
- -> UNTRACKED file. Can be added, ignored
+ -> UNTRACKED file. Can be pushed, ignored
 - File found on disk, found in manifest, not ignored, does not match signature
- -> Changed file. Can be added, resolved, ignored
+ -> Changed file. Can be pushed, pulled, ignored
 - File found on disk, matches signature
  -> Not shown in UI
+
+The data structure passed to the UI is:
+{
+    "dir_name": {
+        "file_name": "UNTRACKED",
+        "file_name2": MODIFIED",
+        "dir_name2": {
+            "file_name": "UNTRACKED",
+            "file_name2": MODIFIED",
+        }
+    }
+}

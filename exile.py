@@ -250,7 +250,7 @@ def add(paths):
 
 def status(paths):
     from ui import start_status_view
-    start_status_view(paths)
+    start_status_view(paths, filemap)
 
 try:
     # calls the local function with the same name as the action argument -- "add" calls add(paths)
