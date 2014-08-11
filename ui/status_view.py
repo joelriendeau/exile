@@ -3,7 +3,7 @@ import dircache
 import ntpath
 from Status import Ui_MainWindow
 from PyQt4.QtGui import QMainWindow, QHeaderView, QAbstractItemView, QTreeWidgetItem, QRadioButton, QButtonGroup, QFontMetrics, QBrush, QColor
-from PyQt4.QtCore import Qt, QSettings
+from PyQt4.QtCore import Qt, QSettings, QPoint, QSize
 
 def path_leaf(path):
     head, tail = ntpath.split(path)
@@ -17,13 +17,13 @@ class StatusView(QMainWindow):
 
         self.uncheckableColumns = 2
 
-        self.settings = QSettings("Exile", "StatusView");
+        self.settings = QSettings("Exile", "StatusView")
+        self.settings.beginGroup("status_view")
 
-        #self.restoreGeometry(self.settings.value("myWidget/geometry").toByteArray())
-        #saveGeometry()
-        
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+
+        self.restoreGeometry(self.settings.value("geometry").toByteArray())
 
         self.tree = self.ui.treeWidget
 
@@ -43,6 +43,9 @@ class StatusView(QMainWindow):
 
         self.tree.expandAll()
 
+    def closeEvent(self, event):
+        self.settings.setValue("geometry", self.saveGeometry());
+
     def resize_headers_to_minimum(self):
         maxWidth = 0
         header = self.tree.headerItem()
@@ -58,7 +61,11 @@ class StatusView(QMainWindow):
     def tree_item_radio_clicked(self, button):
         self.uncheck_parents(button.treeItem)
         id = button.group().id(button)
-        self.check_children(button.treeItem, id)
+        if id == 1 or id == 2: # ignore columns
+            self.enable_children(button.treeItem, False)
+        else:
+            self.enable_children(button.treeItem, True)
+            self.check_children(button.treeItem, id)
 
     def apply_clicked(self):
         new_file_dict = self.apply_callback(self.harvest_form())
@@ -75,7 +82,10 @@ class StatusView(QMainWindow):
         item.my_data = data
 
     def retrieve_data(self, item):
-        return item.my_data
+        try:
+            return item.my_data
+        except:
+            return None
 
     def process_dict(self, file_dict, parent_item):
         if file_dict == None:
@@ -102,11 +112,25 @@ class StatusView(QMainWindow):
             firstButton = self.tree.itemWidget(childItem, self.uncheckableColumns)
             group = firstButton.group()
             buttonToCheck = group.button(id)
-            if buttonToCheck.isEnabled():
-                buttonToCheck.setChecked(True)
-            else:
-                self.uncheck_group(group)
+            if buttonToCheck != None:
+                if buttonToCheck.isEnabled():
+                    buttonToCheck.setChecked(True)
+                else:
+                    self.uncheck_group(group)
             self.check_children(childItem, id)
+
+    def enable_children(self, item, enabled):
+        child_count = item.childCount()
+        for i in range(child_count):
+            childItem = item.child(i)
+            firstButton = self.tree.itemWidget(childItem, self.uncheckableColumns)
+            group = firstButton.group()
+            if not enabled:
+                self.uncheck_group(group)
+            all_buttons = group.buttons()
+            for button in all_buttons:
+                button.setEnabled(enabled)
+            self.enable_children(childItem, enabled)
 
     def uncheck_group(self, group):
         checkedButton = group.checkedButton()
@@ -114,17 +138,6 @@ class StatusView(QMainWindow):
             group.setExclusive(False);
             group.checkedButton().setChecked(False);
             group.setExclusive(True);
-        
-    #def extend_tree(self, parentItem):
-    #   parentDir = self.retrieve_data(parentItem)[0]
-
-    #   subdirs = dircache.listdir(parentDir)
-    #   subdirs.sort()
-    #   for childDir in subdirs:
-    #       child_path = os.path.join(parentDir, childDir)
-    #       if os.path.isdir(child_path) and not os.path.islink(childDir):
-    #           childItem = self.add_node(parentItem, child_path)
-    #           self.extend_tree(childItem)
 
     def add_node(self, parentItem, path, type):
         item = QTreeWidgetItem(parentItem)
@@ -146,15 +159,18 @@ class StatusView(QMainWindow):
                 item.setBackground(i, QBrush(QColor(230, 230, 255)))
 
         # must keep reference to buttonGroup for its callback to work
+        parent_data = self.retrieve_data(parentItem)
+        if parent_data != None:
+            path = os.path.join(parent_data[0], path)
         self.attach_data(item, (path, buttonGroup))
 
         for i in range(self.uncheckableColumns, self.tree.columnCount()):
+            if i == self.tree.columnCount() - 2 and isNewFile:
+                continue # option to resolve not enabled for new files
             button = QRadioButton()
             buttonGroup.addButton(button, i - self.uncheckableColumns) # id is the index
             button.treeItem = item
             self.tree.setItemWidget(item, i, button)
-            if i == self.tree.columnCount() - 2 and isNewFile:
-                button.setEnabled(False)
 
         buttonGroup.buttonClicked.connect(self.tree_item_radio_clicked)
 
@@ -176,6 +192,7 @@ class StatusView(QMainWindow):
 
         root = self.tree.invisibleRootItem()
         self.harvest_node(result, result_map, root)
+        return result
 
     def harvest_node(self, result, result_map, item):
         child_count = item.childCount()

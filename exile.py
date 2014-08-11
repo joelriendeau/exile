@@ -11,6 +11,8 @@ import sys
 import time
 
 MANIFEST_NAME = "exile.manifest"
+GLOBAL_IGNORE_NAME = "exile.ignore"
+LOCAL_IGNORE_NAME = "exile.ignorelocal"
 CACHE_DIR = "exile.cache"
 
 def find_config():
@@ -176,6 +178,28 @@ try:
         cache(args, root_path)
 
     comm = exile.worker.AsyncCommunicator(os.path.dirname(config_path), cache_path, config['remote'], getattr(args, 'force', False))
+
+    # optional ignore files
+    global_ignore = None
+    local_ignore = None
+    dir, file = os.path.split(config_path)
+
+    global_ignore_path = os.path.join(dir, GLOBAL_IGNORE_NAME)
+    if os.path.isfile(global_ignore_path):
+        with open(global_ignore_path, 'r') as file:
+            global_ignore_json = json.load(file)
+    else:
+        global_ignore_json = {}
+    global_ignore = exile.ignores.IgnoreMapping(root_path, global_ignore_json)
+
+    local_ignore_path = os.path.join(dir, LOCAL_IGNORE_NAME)
+    if os.path.isfile(local_ignore_path):
+        with open(local_ignore_path, 'r') as file:
+            local_ignore_json = json.load(file)
+    else:
+        local_ignore_json = {}
+    local_ignore = exile.ignores.IgnoreMapping(root_path, local_ignore_json)
+
 except Exception as e:
     exile.log.error(str(e))
 
@@ -250,7 +274,16 @@ def add(paths):
 
 def status(paths):
     from ui import start_status_view
-    start_status_view(paths, filemap)
+    global global_ignore, local_ignore
+    global_ignore, local_ignore = start_status_view(paths, filemap, global_ignore, local_ignore)
+
+    if global_ignore != None and not global_ignore.isEmpty():
+        with open(global_ignore_path, 'w') as file:
+            json.dump(global_ignore_json, file, indent=4, sort_keys=True)
+
+    if local_ignore != None and not local_ignore.isEmpty():
+        with open(local_ignore_path, 'w') as file:
+            json.dump(local_ignore_json, file, indent=4, sort_keys=True)
 
 try:
     # calls the local function with the same name as the action argument -- "add" calls add(paths)

@@ -1,6 +1,7 @@
 import remote
 import log
 import files
+import ignores
 import worker
 
 import hashlib

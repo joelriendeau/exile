@@ -28,38 +28,70 @@ def insert_in_dict(dict, path, val):
             cur_dict[split[i]] = val
     return
 
+paths = None
+filemap = None
+global_ignore = None
+local_ignore = None
+
 def apply_callback(result_dict):
-    return None
+    # result["add"] = []
+    # result["ignore_glob"] = []
+    # result["ignore_loc"] = []
+    # result["resolve"] = []
 
-def start_status_view(paths, filemap):
-    app = QApplication([])
+    global paths, filemap, global_ignore, local_ignore
 
+    ignore_glob = result_dict["ignore_glob"]
+    for path in ignore_glob:
+        global_ignore.add(path)
+
+    ignore_loc = result_dict["ignore_loc"]
+    for path in ignore_loc:
+        local_ignore.add(path)
+
+    return compute_content()
+
+def compute_content():
     content_dict = {}
+
+    global paths, filemap, global_ignore, local_ignore
 
     # compare filesystem content under path with content in manifest file (filemap object)
     for path in paths:
         for root, dirs, files in os.walk(path):
             for file in files:
                 file_path = os.path.join(root, file)
+                if global_ignore != None:
+                    value = global_ignore.get(file_path)
+                    if value:
+                        continue
+                if local_ignore != None:
+                    value = local_ignore.get(file_path)
+                    if value:
+                        continue
                 value = filemap.get(file_path)
+                # todo: verify file not ignored
                 if value == None:
                     insert_in_dict(content_dict, file_path, "UNTRACKED")
+                else:
+                    # todo: verify file signature
+                    insert_in_dict(content_dict, file_path, "MODIFIED")
 
-    test_dict = {
-        "content": {
-            "file1": "UNTRACKED",
-            "file2": "MODIFIED",
-            "dir": {
-                "file3": "UNTRACKED",
-                "file4": "MODIFIED"
-            },
-            "dir2": {
-                "file5": "UNTRACKED",
-                "file6": "MODIFIED"
-            }
-        }
-    }
+    return content_dict
+
+def start_status_view(paths_in, filemap_in, global_ignore_in, local_ignore_in):
+    app = QApplication([])
+
+    global paths, filemap, global_ignore, local_ignore
+    paths = paths_in
+    filemap = filemap_in
+    global_ignore = global_ignore_in
+    local_ignore = local_ignore_in
+
+    content_dict = compute_content()
 
     window = StatusView(content_dict, apply_callback)
     window.show()
-    return app.exec_()
+    app.exec_()
+
+    return global_ignore, local_ignore

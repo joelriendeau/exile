@@ -69,7 +69,6 @@ class FileMapping:
         Gets the configured object for a given path. If the path is not a file
         or is not tracked, returns None.
         """
-
         value = self.__get(self.__path_components(path))
         if type(value) is dict:
             return None
