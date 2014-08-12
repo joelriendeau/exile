@@ -275,7 +275,7 @@ def add(paths):
 def status(paths):
     from ui import start_status_view
     global global_ignore, local_ignore
-    global_ignore, local_ignore = start_status_view(paths, filemap, global_ignore, local_ignore)
+    global_ignore, local_ignore = start_status_view(paths, filemap, global_ignore, local_ignore, add_file, exile.hash)
 
     if global_ignore != None and not global_ignore.isEmpty():
         with open(global_ignore_path, 'w') as file:
@@ -284,6 +284,9 @@ def status(paths):
     if local_ignore != None and not local_ignore.isEmpty():
         with open(local_ignore_path, 'w') as file:
             json.dump(local_ignore_json, file, indent=4, sort_keys=True)
+
+    with open(config_path, 'w') as file:
+        json.dump(config, file, indent=4, sort_keys=True)
 
 try:
     # calls the local function with the same name as the action argument -- "add" calls add(paths)

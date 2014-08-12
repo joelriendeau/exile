@@ -32,6 +32,8 @@ paths = None
 filemap = None
 global_ignore = None
 local_ignore = None
+add_callback = None
+hash_callback = None
 
 def apply_callback(result_dict):
     # result["add"] = []
@@ -49,18 +51,31 @@ def apply_callback(result_dict):
     for path in ignore_loc:
         local_ignore.add(path)
 
+    to_add = result_dict["add"]
+    for path in to_add:
+        add_callback(path)
+
     return compute_content()
 
 def compute_content():
     content_dict = {}
 
-    global paths, filemap, global_ignore, local_ignore
+    global paths, filemap, global_ignore, local_ignore, hash_callback
 
     # compare filesystem content under path with content in manifest file (filemap object)
     for path in paths:
+        
+        tracked_files = filemap.paths(os.path.abspath(path))
+
         for root, dirs, files in os.walk(path):
             for file in files:
                 file_path = os.path.join(root, file)
+
+                try:
+                    tracked_files.remove(os.path.abspath(file_path))
+                except:
+                    pass
+                
                 if global_ignore != None:
                     value = global_ignore.get(file_path)
                     if value:
@@ -69,24 +84,31 @@ def compute_content():
                     value = local_ignore.get(file_path)
                     if value:
                         continue
+
                 value = filemap.get(file_path)
-                # todo: verify file not ignored
                 if value == None:
                     insert_in_dict(content_dict, file_path, "UNTRACKED")
                 else:
-                    # todo: verify file signature
-                    insert_in_dict(content_dict, file_path, "MODIFIED")
+                    hash = hash_callback(file_path)
+                    if value != hash:
+                        insert_in_dict(content_dict, file_path, "MODIFIED")
+
+        for missing in tracked_files:
+            rel_path = os.path.relpath(missing, os.path.dirname(os.path.abspath(path)))
+            insert_in_dict(content_dict, rel_path, "MISSING")
 
     return content_dict
 
-def start_status_view(paths_in, filemap_in, global_ignore_in, local_ignore_in):
+def start_status_view(paths_in, filemap_in, global_ignore_in, local_ignore_in, add_callback_in, hash_callback_in):
     app = QApplication([])
 
-    global paths, filemap, global_ignore, local_ignore
+    global paths, filemap, global_ignore, local_ignore, add_callback, hash_callback
     paths = paths_in
     filemap = filemap_in
     global_ignore = global_ignore_in
     local_ignore = local_ignore_in
+    add_callback = add_callback_in
+    hash_callback = hash_callback_in
 
     content_dict = compute_content()
 

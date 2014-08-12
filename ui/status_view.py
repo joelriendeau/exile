@@ -100,7 +100,7 @@ class StatusView(QMainWindow):
     def uncheck_parents(self, item):
         parent = item.parent()
         while parent != None:
-            parentFirstButton = self.tree.itemWidget(parent, self.uncheckableColumns)
+            parentFirstButton = self.tree.itemWidget(parent, self.uncheckableColumns + 1)
             group = parentFirstButton.group()
             self.uncheck_group(group)
             parent = parent.parent()
@@ -109,7 +109,7 @@ class StatusView(QMainWindow):
         child_count = item.childCount()
         for i in range(child_count):
             childItem = item.child(i)
-            firstButton = self.tree.itemWidget(childItem, self.uncheckableColumns)
+            firstButton = self.tree.itemWidget(childItem, self.uncheckableColumns + 1)
             group = firstButton.group()
             buttonToCheck = group.button(id)
             if buttonToCheck != None:
@@ -123,7 +123,7 @@ class StatusView(QMainWindow):
         child_count = item.childCount()
         for i in range(child_count):
             childItem = item.child(i)
-            firstButton = self.tree.itemWidget(childItem, self.uncheckableColumns)
+            firstButton = self.tree.itemWidget(childItem, self.uncheckableColumns + 1)
             group = firstButton.group()
             if not enabled:
                 self.uncheck_group(group)
@@ -146,12 +146,16 @@ class StatusView(QMainWindow):
 
         isNewFile = type is "UNTRACKED"
         isModifiedFile = type is "MODIFIED"
+        isMissing = type is "MISSING"
         isDirectory = type is "DIR"
 
         if isNewFile:
             item.setText(1, type)
             item.setForeground(1, QBrush(QColor(0, 255, 0)))
         if isModifiedFile:
+            item.setText(1, type)
+            item.setForeground(1, QBrush(QColor(0, 0, 255)))
+        if isMissing:
             item.setText(1, type)
             item.setForeground(1, QBrush(QColor(255, 0, 0)))
         if isDirectory:
@@ -165,6 +169,8 @@ class StatusView(QMainWindow):
         self.attach_data(item, (path, buttonGroup))
 
         for i in range(self.uncheckableColumns, self.tree.columnCount()):
+            if i == self.tree.columnCount() - 5 and isMissing:
+                continue # option to add not enabled for missing files
             if i == self.tree.columnCount() - 2 and isNewFile:
                 continue # option to resolve not enabled for new files
             button = QRadioButton()
