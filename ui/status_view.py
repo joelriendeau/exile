@@ -204,7 +204,7 @@ class StatusView(QMainWindow):
         child_count = item.childCount()
         for i in range(child_count):
             childItem = item.child(i)
-            firstButton = self.tree.itemWidget(childItem, self.uncheckableColumns)
+            firstButton = self.tree.itemWidget(childItem, self.uncheckableColumns + 1)
             group = firstButton.group()
             checkedId = group.checkedId()
             if checkedId >= 0 and checkedId < len(result_map):

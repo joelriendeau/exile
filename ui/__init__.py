@@ -33,6 +33,7 @@ filemap = None
 global_ignore = None
 local_ignore = None
 add_callback = None
+resolve_callback = None
 hash_callback = None
 
 def apply_callback(result_dict):
@@ -41,7 +42,7 @@ def apply_callback(result_dict):
     # result["ignore_loc"] = []
     # result["resolve"] = []
 
-    global paths, filemap, global_ignore, local_ignore
+    global paths, filemap, global_ignore, local_ignore, add_callback, resolve_callback
 
     ignore_glob = result_dict["ignore_glob"]
     for path in ignore_glob:
@@ -54,6 +55,9 @@ def apply_callback(result_dict):
     to_add = result_dict["add"]
     for path in to_add:
         add_callback(path)
+
+    to_resolve = result_dict["resolve"]
+    resolve_callback(to_resolve)
 
     return compute_content()
 
@@ -99,15 +103,16 @@ def compute_content():
 
     return content_dict
 
-def start_status_view(paths_in, filemap_in, global_ignore_in, local_ignore_in, add_callback_in, hash_callback_in):
+def start_status_view(paths_in, filemap_in, global_ignore_in, local_ignore_in, add_callback_in, resolve_callback_in, hash_callback_in):
     app = QApplication([])
 
-    global paths, filemap, global_ignore, local_ignore, add_callback, hash_callback
+    global paths, filemap, global_ignore, local_ignore, add_callback, resolve_callback, hash_callback
     paths = paths_in
     filemap = filemap_in
     global_ignore = global_ignore_in
     local_ignore = local_ignore_in
     add_callback = add_callback_in
+    resolve_callback = resolve_callback_in
     hash_callback = hash_callback_in
 
     content_dict = compute_content()

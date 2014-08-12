@@ -275,7 +275,7 @@ def add(paths):
 def status(paths):
     from ui import start_status_view
     global global_ignore, local_ignore
-    global_ignore, local_ignore = start_status_view(paths, filemap, global_ignore, local_ignore, add_file, exile.hash)
+    global_ignore, local_ignore = start_status_view(paths, filemap, global_ignore, local_ignore, add_file, resolve, exile.hash)
 
     if global_ignore != None and not global_ignore.isEmpty():
         with open(global_ignore_path, 'w') as file:
