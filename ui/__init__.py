@@ -29,6 +29,7 @@ def insert_in_dict(dict, path, val):
     return
 
 paths = None
+root_path = None
 filemap = None
 global_ignore = None
 local_ignore = None
@@ -37,11 +38,6 @@ resolve_callback = None
 hash_callback = None
 
 def apply_callback(result_dict):
-    # result["add"] = []
-    # result["ignore_glob"] = []
-    # result["ignore_loc"] = []
-    # result["resolve"] = []
-
     global paths, filemap, global_ignore, local_ignore, add_callback, resolve_callback
 
     ignore_glob = result_dict["ignore_glob"]
@@ -64,11 +60,10 @@ def apply_callback(result_dict):
 def compute_content():
     content_dict = {}
 
-    global paths, filemap, global_ignore, local_ignore, hash_callback
+    global paths, root_path, filemap, global_ignore, local_ignore, hash_callback
 
     # compare filesystem content under path with content in manifest file (filemap object)
     for path in paths:
-        
         tracked_files = filemap.paths(os.path.abspath(path))
 
         for root, dirs, files in os.walk(path):
@@ -98,16 +93,17 @@ def compute_content():
                         insert_in_dict(content_dict, file_path, "MODIFIED")
 
         for missing in tracked_files:
-            rel_path = os.path.relpath(missing, os.path.dirname(os.path.abspath(path)))
+            rel_path = os.path.relpath(missing, root_path)
             insert_in_dict(content_dict, rel_path, "MISSING")
 
     return content_dict
 
-def start_status_view(paths_in, filemap_in, global_ignore_in, local_ignore_in, add_callback_in, resolve_callback_in, hash_callback_in):
+def start_status_view(paths_in, root_path_in, filemap_in, global_ignore_in, local_ignore_in, add_callback_in, resolve_callback_in, hash_callback_in):
     app = QApplication([])
 
-    global paths, filemap, global_ignore, local_ignore, add_callback, resolve_callback, hash_callback
+    global paths, root_path, filemap, global_ignore, local_ignore, add_callback, resolve_callback, hash_callback
     paths = paths_in
+    root_path = root_path_in
     filemap = filemap_in
     global_ignore = global_ignore_in
     local_ignore = local_ignore_in
