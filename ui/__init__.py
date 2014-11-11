@@ -1,5 +1,6 @@
 try:
     from PyQt4.QtGui import QApplication
+    from PyQt4.QtGui import QMessageBox
 except ImportError, e:
     raise RuntimeError("PyQT 4 is missing from your Python install. The UI extensions will not function properly.")
 import sys
@@ -39,6 +40,15 @@ stop_track_callback = None
 save_config = None
 hash_callback = None
 
+def confirm(text):
+    reply = QMessageBox.question(None, 'Message',
+        text, QMessageBox.Yes | 
+        QMessageBox.No, QMessageBox.No)
+
+    if reply == QMessageBox.Yes:
+        return True
+    return False
+        
 def apply_callback(result_dict):
     global paths, filemap, global_ignore, local_ignore, add_callback, resolve_callback
 
@@ -67,6 +77,15 @@ def apply_callback(result_dict):
         # do not stop tracking a directory, they are not tracked anyway
         if not path[1] == "DIR":
             stop_track_callback(path[0])
+
+    to_delete = result_dict["delete"]
+    for path in to_delete:
+        # do not delete directories ever, too dangerous
+        if not path[1] == "DIR":
+            question = "Are you sure you want to delete \"" + path[0] + "\" ?"
+            confirmed = confirm(question)
+            if confirmed:
+                os.remove(path[0])
 
     save_config()
 
