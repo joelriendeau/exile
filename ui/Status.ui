@@ -82,6 +82,16 @@
       </column>
       <column>
        <property name="text">
+        <string>Stop Track</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Delete</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
         <string>No Op</string>
        </property>
        <property name="toolTip">

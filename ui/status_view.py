@@ -169,10 +169,16 @@ class StatusView(QMainWindow):
         self.attach_data(item, (path, buttonGroup, type))
 
         for i in range(self.uncheckableColumns, self.tree.columnCount()):
-            if i == self.tree.columnCount() - 5 and isMissing:
+            if i == self.tree.columnCount() - 7 and isMissing:
                 continue # option to add not enabled for missing files
-            if i == self.tree.columnCount() - 2 and isNewFile:
+            if i == self.tree.columnCount() - 4 and isNewFile:
                 continue # option to resolve not enabled for new files
+            if i == self.tree.columnCount() - 3 and isNewFile:
+                continue # option to stop tracking not enabled for untracked files
+            if i == self.tree.columnCount() - 2 and isMissing:
+                continue # option to delete not enabled for missing files
+            if i == self.tree.columnCount() - 2 and isDirectory:
+                continue # option to delete not enabled for directories, too dangerous
             button = QRadioButton()
             buttonGroup.addButton(button, i - self.uncheckableColumns) # id is the index
             button.treeItem = item
@@ -189,12 +195,16 @@ class StatusView(QMainWindow):
         result["ignore_glob"] = []
         result["ignore_loc"] = []
         result["resolve"] = []
+        result["stop_track"] = []
+        result["delete"] = []
 
         result_map = [] # lookup of button index to value
         result_map.append("add")
         result_map.append("ignore_glob")
         result_map.append("ignore_loc")
         result_map.append("resolve")
+        result_map.append("stop_track")
+        result_map.append("delete")
 
         root = self.tree.invisibleRootItem()
         self.harvest_node(result, result_map, root)

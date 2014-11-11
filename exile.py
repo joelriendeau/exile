@@ -272,10 +272,18 @@ def add(paths):
     with open(config_path, 'w') as file:
         json.dump(config, file, indent=4, sort_keys=True)
 
+def stop_track(path):
+    """
+    Remove file from manifest
+    """
+    exile.log.message("stop tracking: " + path)
+    relative = filemap.paths(path)
+    filehash = filemap.remove(path)
+
 def status(paths):
     from ui import start_status_view
     global global_ignore, local_ignore
-    global_ignore, local_ignore = start_status_view(paths, root_path, filemap, global_ignore, local_ignore, add_file, resolve, exile.hash)
+    global_ignore, local_ignore = start_status_view(paths, root_path, filemap, global_ignore, local_ignore, add_file, resolve, stop_track, exile.hash)
 
     if global_ignore != None and not global_ignore.isEmpty():
         with open(global_ignore_path, 'w') as file:
