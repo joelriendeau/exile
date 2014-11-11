@@ -37,7 +37,7 @@ class StatusView(QMainWindow):
         self.tree.setSelectionMode(QAbstractItemView.NoSelection)
 
         self.ui.applyButton.clicked.connect(self.apply_clicked)
-        self.ui.cancelButton.clicked.connect(self.cancel_clicked)
+        self.ui.closeButton.clicked.connect(self.close_clicked)
 
         self.process_dict(file_dict, self.tree)
 
@@ -74,7 +74,7 @@ class StatusView(QMainWindow):
         self.tree.expandAll()
         return
 
-    def cancel_clicked(self):
+    def close_clicked(self):
         self.close()
         return
 
