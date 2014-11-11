@@ -166,7 +166,7 @@ class StatusView(QMainWindow):
         parent_data = self.retrieve_data(parentItem)
         if parent_data != None:
             path = os.path.join(parent_data[0], path)
-        self.attach_data(item, (path, buttonGroup))
+        self.attach_data(item, (path, buttonGroup, type))
 
         for i in range(self.uncheckableColumns, self.tree.columnCount()):
             if i == self.tree.columnCount() - 5 and isMissing:
@@ -209,5 +209,6 @@ class StatusView(QMainWindow):
             checkedId = group.checkedId()
             if checkedId >= 0 and checkedId < len(result_map):
                 path = self.retrieve_data(childItem)[0]
-                result[result_map[checkedId]].append(path)
+                type = self.retrieve_data(childItem)[2]
+                result[result_map[checkedId]].append((path,type))
             self.harvest_node(result, result_map, childItem)

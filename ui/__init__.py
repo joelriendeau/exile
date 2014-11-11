@@ -42,20 +42,23 @@ def apply_callback(result_dict):
 
     ignore_glob = result_dict["ignore_glob"]
     for path in ignore_glob:
-        global_ignore.add(path)
+        global_ignore.add(path[0])
 
     ignore_loc = result_dict["ignore_loc"]
     for path in ignore_loc:
-        local_ignore.add(path)
+        local_ignore.add(path[0])
 
     to_add = result_dict["add"]
     for path in to_add:
         # do not add a directory, exile supports files only
-        if not os.path.isdir(path):
-            add_callback(path)
+        if not path[1] == "DIR":
+            add_callback(path[0])
 
     to_resolve = result_dict["resolve"]
-    resolve_callback(to_resolve)
+    for path in to_resolve:
+        # do not add a directory, might resolve the same file twice
+        if not path[1] == "DIR":
+            resolve_callback({path[0]})
 
     return compute_content()
 
