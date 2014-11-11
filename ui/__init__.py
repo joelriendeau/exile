@@ -50,7 +50,9 @@ def apply_callback(result_dict):
 
     to_add = result_dict["add"]
     for path in to_add:
-        add_callback(path)
+        # do not add a directory, exile supports files only
+        if not os.path.isdir(path):
+            add_callback(path)
 
     to_resolve = result_dict["resolve"]
     resolve_callback(to_resolve)
