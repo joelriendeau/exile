@@ -36,6 +36,7 @@ local_ignore = None
 add_callback = None
 resolve_callback = None
 stop_track_callback = None
+save_config = None
 hash_callback = None
 
 def apply_callback(result_dict):
@@ -66,6 +67,8 @@ def apply_callback(result_dict):
         # do not stop tracking a directory, they are not tracked anyway
         if not path[1] == "DIR":
             stop_track_callback(path[0])
+
+    save_config()
 
     return compute_content()
 
@@ -110,10 +113,10 @@ def compute_content():
 
     return content_dict
 
-def start_status_view(paths_in, root_path_in, filemap_in, global_ignore_in, local_ignore_in, add_callback_in, resolve_callback_in, stop_track_callback_in, hash_callback_in):
+def start_status_view(paths_in, root_path_in, filemap_in, global_ignore_in, local_ignore_in, add_callback_in, resolve_callback_in, stop_track_callback_in, save_config_in, hash_callback_in):
     app = QApplication([])
 
-    global paths, root_path, filemap, global_ignore, local_ignore, add_callback, resolve_callback, stop_track_callback, hash_callback
+    global paths, root_path, filemap, global_ignore, local_ignore, add_callback, resolve_callback, stop_track_callback, save_config, hash_callback
     paths = paths_in
     root_path = root_path_in
     filemap = filemap_in
@@ -122,6 +125,7 @@ def start_status_view(paths_in, root_path_in, filemap_in, global_ignore_in, loca
     add_callback = add_callback_in
     resolve_callback = resolve_callback_in
     stop_track_callback = stop_track_callback_in
+    save_config = save_config_in
     hash_callback = hash_callback_in
 
     content_dict = compute_content()
