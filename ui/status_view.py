@@ -173,10 +173,10 @@ class StatusView(QMainWindow):
                 continue # option to add not enabled for missing files
             if i == self.tree.columnCount() - 4 and isNewFile:
                 continue # option to resolve not enabled for new files
-            if i == self.tree.columnCount() - 3 and isNewFile:
-                continue # option to stop tracking not enabled for untracked files
-            if i == self.tree.columnCount() - 2 and isMissing:
-                continue # option to delete not enabled for missing files
+            if i == self.tree.columnCount() - 3 and not isMissing:
+                continue # option to stop tracking enabled only for missing files
+            if i == self.tree.columnCount() - 2 and not isNewFile:
+                continue # option to delete enabled only for untracked files
             if i == self.tree.columnCount() - 2 and isDirectory:
                 continue # option to delete not enabled for directories, too dangerous
             button = QRadioButton()
