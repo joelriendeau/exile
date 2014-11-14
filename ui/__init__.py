@@ -38,6 +38,7 @@ add_callback = None
 resolve_callback = None
 stop_track_callback = None
 save_config = None
+sync_remote = None
 hash_callback = None
 
 def confirm(text):
@@ -88,6 +89,7 @@ def apply_callback(result_dict):
                 os.remove(path[0])
 
     save_config()
+    sync_remote() # make sure all outstanding network operations are done
 
     return compute_content()
 
@@ -132,10 +134,10 @@ def compute_content():
 
     return content_dict
 
-def start_status_view(paths_in, root_path_in, filemap_in, global_ignore_in, local_ignore_in, add_callback_in, resolve_callback_in, stop_track_callback_in, save_config_in, hash_callback_in):
+def start_status_view(paths_in, root_path_in, filemap_in, global_ignore_in, local_ignore_in, add_callback_in, resolve_callback_in, stop_track_callback_in, save_config_in, sync_remote_in, hash_callback_in):
     app = QApplication([])
 
-    global paths, root_path, filemap, global_ignore, local_ignore, add_callback, resolve_callback, stop_track_callback, save_config, hash_callback
+    global paths, root_path, filemap, global_ignore, local_ignore, add_callback, resolve_callback, stop_track_callback, save_config, sync_remote, hash_callback
     paths = paths_in
     root_path = root_path_in
     filemap = filemap_in
@@ -145,6 +147,7 @@ def start_status_view(paths_in, root_path_in, filemap_in, global_ignore_in, loca
     resolve_callback = resolve_callback_in
     stop_track_callback = stop_track_callback_in
     save_config = save_config_in
+    sync_remote = sync_remote_in
     hash_callback = hash_callback_in
 
     content_dict = compute_content()
